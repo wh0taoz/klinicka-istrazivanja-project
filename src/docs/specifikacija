@@ -1,0 +1,16 @@
+Kliničko istraživanje (eksperiment) predstavlja kontrolisano ispitivanje pregleda, terapije ili intervencije. Svako istraživanje ima svoj naziv, zahteva potrebne resurse i alate, i ima jednog ili više istraživača (dizajnera) koji definiše ciljeve istraživanja i protokol po kojem se postupa (teorijski okvir).
+
+Bolnica (laboratorija) je mesto ili odeljenje u okviru jedne (ili ambulanta ili slično okruženje) u kojoj se istraživanja sprovode. O njoj se čuvaju naziv i adresa. Bolnica poseduje inventar resursa i alata koji se koriste u istraživanjima.
+
+Pacijent (resurs) je entitet koji učestvuje u istraživanju ili nad kojim se istraživanje sprovodi. O pacijentu se čuvaju ime, prezime, datum rodjenja, kompletna prethodna medicinska istorija i, po potrebi, dodatna napomena. Jedan pacijent može biti prisutan u više bolnica, osim ukoliko jedno od istraživanja ne zahteva da pacijent ne sme paralelno učestvovati u drugim istraživanjima. Bolnica može imati više pacijenata. Potrebno je pratiti stanje pacijenata i prisutnost u bolnici. Bolnica može pronaći još pacijenata i nad njima sprovoditi istraživanja.
+
+//ovde bih dodala još jednu vrstu resursa, ukoliko je dozvoljeno
+Supstanca (resurs) je entitet koji učestvuje u eksperimentu i/ili koji se daje pacijentu. O supstanci se čuva naziv, hemijski sastav, izvor po potrebi, kao i dodatne napomene po potrebi. Jedna supstanca može biti prisutna u više bolnica istovremeno, a bolnica može imati više različitih supstanci. Potrebno je pratiti dostupnu količinu i status supstance u svakoj bolnici. Bolnica može nabaviti resurse ili da ih koristi u istraživanjima. (lekovi, biološki uzorci kao urin, krv, tkivo...)
+
+Medicinski uređaj ili instrument (alat) je entitet koji omogućava izvođenje istraživanja, beleženje podataka ili praćenje procesa. Svaki instrument pripada jednoj bolnici i ima identifikacioni broj, tip, datum nabavke i, po potrebi, datum proizvodnje. Tip instrumenta je apstraktna klasifikacija više instrumenata iste funkcije i sadrži naziv i opis. (termometar, ekg, eeg, ultrazvuk, rendgen, holter, mikroskop, pipeta, igle, spricevi, softveri)
+
+Istraživač je entitet koji učestvuje u istraživanjima. O istraživaču se čuvaju osnovni podaci i podaci o kvalifikacijama ili sposobnostima. Istraživači se mogu definisati kao dizajneri isrtaživanja, izvođači istraživanja ili oba tipa.
+
+Istraživanje definiše potrebne supstance i instrumente za izvođenje i ima jednog ili više dizajnera. Dizajner istraživanja prati protokol (teorijski okvir), a o protokolu se čuvaju naziv, identifikacioni podaci i dodatni opis. Istraživanja se izvršavaju u bolnicama kroz izvođenja. Svako izvođenje može imati tim izvođača, datum i status (planirano, započeto, otkazano, završeno uspešno ili završeno neuspešno). O svakom izvođaču se čuva opis uloge i eventualna putanja do beleški ili evidencije.
+
+Istraživanja se realizuju u terminima (sesijama), koje se zakazuju unapred. Svaki termin je vezan za jedno izvođenje i ima datum, vreme početka i završetka. Termini u istoj bolnici se ne smeju preklapati. Po završetku termina beleži se koliko supstanci ili instrumenata je iskorišćeno, a inventar bolnice se automatski ažurira.
