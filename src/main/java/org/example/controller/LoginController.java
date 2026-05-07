@@ -10,7 +10,6 @@ public class LoginController {
 
     private static final String FILE_PATH = "users.txt";
 
-    // Ucitava sve korisnike iz txt fajla
     private List<User> loadUsers() {
         List<User> users = new ArrayList<>();
         File file = new File(FILE_PATH);
@@ -33,8 +32,6 @@ public class LoginController {
 
         return users;
     }
-
-    // Provjerava da li korisnik postoji i da li je lozinka ispravna
     public boolean login(String username, String password) {
         List<User> users = loadUsers();
         for (User user : users) {
@@ -45,7 +42,6 @@ public class LoginController {
         return false;
     }
 
-    // Registruje novog korisnika ako korisnicko ime nije zauzeto
     public boolean register(String username, String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
             return false;
@@ -54,7 +50,7 @@ public class LoginController {
         List<User> users = loadUsers();
         for (User user : users) {
             if (user.getUsername().equals(username)) {
-                return false; // korisnicko ime vec postoji
+                return false;
             }
         }
 
