@@ -7,12 +7,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import org.example.Config;
+import org.example.controller.LoginController;
 
 public class LoginView {
 
     private final Stage stage;
     private final StackPane root;
+    private final LoginController loginController = new LoginController();
 
     public LoginView(Stage stage) {
         this.stage = stage;
@@ -44,7 +45,6 @@ public class LoginView {
         PasswordField password = createPasswordField("Enter your password");
 
         Label message = new Label();
-        message.setStyle("-fx-font-size: 12; -fx-text-fill: #e53935;");
         message.setWrapText(true);
 
         Button loginBtn = createPrimaryButton("Sign in");
@@ -52,7 +52,22 @@ public class LoginView {
         loginBtn.setOnAction(e -> {
             String user = username.getText().trim();
             String pass = password.getText();
-            // TODO: provera u tekstualnom fajlu korisnika
+
+            if (user.isEmpty() || pass.isEmpty()) {
+                message.setStyle("-fx-font-size: 12; -fx-text-fill: #e53935;");
+                message.setText("Please fill in all fields.");
+                return;
+            }
+
+            if (loginController.login(user, pass)) {
+                message.setStyle("-fx-font-size: 12; -fx-text-fill: #1D9E75;");
+                message.setText("Login successful! Welcome, " + user + ".");
+                MainView mainView = new MainView(stage, user);
+                mainView.show();
+            } else {
+                message.setStyle("-fx-font-size: 12; -fx-text-fill: #e53935;");
+                message.setText("Incorrect username or password.");
+            }
         });
 
         card.getChildren().addAll(
@@ -82,7 +97,6 @@ public class LoginView {
         PasswordField confirmPassword = createPasswordField("Repeat your password");
 
         Label message = new Label();
-        message.setStyle("-fx-font-size: 12; -fx-text-fill: #e53935;");
         message.setWrapText(true);
 
         Button registerBtn = createPrimaryButton("Register");
@@ -91,7 +105,20 @@ public class LoginView {
             String user = username.getText().trim();
             String pass = password.getText();
             String confirm = confirmPassword.getText();
-            // TODO: upis u tekstualni fajl korisnika
+
+            if (user.isEmpty() || pass.isEmpty() || confirm.isEmpty()) {
+                message.setStyle("-fx-font-size: 12; -fx-text-fill: #e53935;");
+                message.setText("Please fill in all fields.");
+                return;
+            }
+
+            if (loginController.register(user, pass, confirm)) {
+                message.setStyle("-fx-font-size: 12; -fx-text-fill: #1D9E75;");
+                message.setText("Registration successful! You can now sign in.");
+            } else {
+                message.setStyle("-fx-font-size: 12; -fx-text-fill: #e53935;");
+                message.setText("Username already exists or passwords do not match.");
+            }
         });
 
         card.getChildren().addAll(
@@ -183,7 +210,6 @@ public class LoginView {
         HBox.setHgrow(loginTab, Priority.ALWAYS);
         HBox.setHgrow(registerTab, Priority.ALWAYS);
 
-        // pozivamo showLoginForm/showRegisterForm direktno, bez Stage parametra
         loginTab.setOnAction(e -> showLoginForm());
         registerTab.setOnAction(e -> showRegisterForm());
 
