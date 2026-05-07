@@ -1,4 +1,5 @@
 package org.example.view;
+// gui uradjen pomocu ai
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
