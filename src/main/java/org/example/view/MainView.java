@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.example.model.Istrazivanje;
+import org.example.model.Izvodjenje;
 
 import java.rmi.ConnectIOException;
 import java.sql.Connection;
@@ -245,16 +246,16 @@ public class MainView {
         form.setMaxWidth(400);
         VBox.setMargin(form, new Insets(16, 0, 0, 0));
 
-        Label expLabel = createFormLabel("Experiment");
-        ComboBox<String> expCombo = new ComboBox<>();
-        expCombo.getItems().addAll("Drug trial phase 1", "Therapy efficacy", "Intervention study");
-        expCombo.setPromptText("Select experiment");
+        Label expLabel = createFormLabel("Izvodjenje");
+        ComboBox<Izvodjenje> expCombo = new ComboBox<>();
+        expCombo.getItems().addAll(Izvodjenje.readAll(connection));
+        expCombo.setPromptText("Select izvodjenje");
         expCombo.setMaxWidth(Double.MAX_VALUE);
         styleComboBox(expCombo);
 
         Label statusLabel = createFormLabel("New status");
-        ComboBox<String> statusCombo = new ComboBox<>();
-        statusCombo.getItems().addAll("Planned", "Started", "Cancelled", "Completed successfully", "Completed unsuccessfully");
+        ComboBox<Izvodjenje.Status> statusCombo = new ComboBox<>();
+        statusCombo.getItems().addAll(Izvodjenje.Status.values());
         statusCombo.setPromptText("Select status");
         statusCombo.setMaxWidth(Double.MAX_VALUE);
         styleComboBox(statusCombo);
@@ -266,12 +267,12 @@ public class MainView {
         saveBtn.setOnAction(e -> {
             if (expCombo.getValue() == null || statusCombo.getValue() == null) {
                 message.setStyle("-fx-font-size: 12; -fx-text-fill: #e53935;");
-                message.setText("Please select both experiment and status.");
+                message.setText("Please select both izvodjenje and status.");
                 return;
             }
+            // TODO: update u bazi
             message.setStyle("-fx-font-size: 12; -fx-text-fill: #1D9E75;");
             message.setText("Status updated successfully.");
-            // TODO: update u bazi
         });
 
         form.getChildren().addAll(expLabel, expCombo, statusLabel, statusCombo, saveBtn, message);
@@ -333,7 +334,7 @@ public class MainView {
         return lbl;
     }
 
-    private void styleComboBox(ComboBox<String> combo) {
+    private void styleComboBox(ComboBox combo) {
         combo.setStyle(
                 "-fx-background-color: #f9f9f9;" +
                         "-fx-border-color: #e0e0e0;" +

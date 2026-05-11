@@ -1,6 +1,12 @@
 package org.example.model;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Izvodjenje {
 
@@ -22,6 +28,27 @@ public class Izvodjenje {
         this.status = status;
     }
 
+    public static List<Izvodjenje> readAll(Connection connection) {
+        String query = "SELECT izvodjenje_id, istrazivanje_id, bolnica_id, datum, status FROM izvodjenje";
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            List<Izvodjenje> izvodjenja = new ArrayList<>();
+            while (rs.next()) {
+                int id            = rs.getInt("izvodjenje_id");
+                int istrazivanjeId = rs.getInt("istrazivanje_id");
+                int bolnicaId     = rs.getInt("bolnica_id");
+                LocalDate datum   = rs.getDate("datum").toLocalDate();
+                Status status     = Status.valueOf(rs.getString("status"));
+
+                izvodjenja.add(new Izvodjenje(id, istrazivanjeId, bolnicaId, datum, status));
+            }
+            return izvodjenja;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public int getIzvodjenje_id() { return izvodjenje_id; }
     public void setIzvodjenje_id(int izvodjenje_id) { this.izvodjenje_id = izvodjenje_id; }
 
@@ -36,4 +63,6 @@ public class Izvodjenje {
 
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
+
+
 }
