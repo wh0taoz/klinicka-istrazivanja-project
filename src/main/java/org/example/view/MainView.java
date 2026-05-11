@@ -222,7 +222,7 @@ public class MainView {
 
         TableColumn<Istrazivanje, String> colProtokol = new TableColumn<>("Protocol ID");
         colProtokol.setCellValueFactory(data ->
-                new SimpleStringProperty(String.valueOf(data.getValue().getProtokolId())));
+                new SimpleStringProperty(String.valueOf(data.getValue().getProtokol_id())));
 
         table.getColumns().addAll(colNaziv, colProtokol);
         List<Istrazivanje> lista = Istrazivanje.readAll(connection);
