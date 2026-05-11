@@ -20,6 +20,7 @@ public class Termin {
     private LocalDate datum;
     private LocalTime vremePocetka;
     private LocalTime vremeZavrsetka;
+    private String nazivIstrazivanja;
 
     public Termin(int termin_id, int izvodjenje_id, LocalDate datum, LocalTime vremePocetka, LocalTime vremeZavrsetka) {
         this.termin_id = termin_id;
@@ -29,20 +30,28 @@ public class Termin {
         this.vremeZavrsetka = vremeZavrsetka;
     }
 
-    public static List<Termin> readAll(Connection connection) {
-        String query = "SELECT termin_id, izvodjenje_id, datum, vreme_pocetka, vreme_zavrsetka FROM termin";
+    public static List<Termin> readAllSaNazivom(Connection connection) {
+        String query = """
+            SELECT t.termin_id, t.izvodjenje_id, t.datum, t.vreme_pocetka, t.vreme_zavrsetka,
+                   i.naziv
+            FROM termin t
+            JOIN izvodjenje iz ON t.izvodjenje_id = iz.izvodjenje_id
+            JOIN istrazivanje i ON iz.istrazivanje_id = i.istrazivanje_id
+            """;
         try {
             Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query);
             List<Termin> termini = new ArrayList<>();
             while (rs.next()) {
-                int terminId      = rs.getInt("termin_id");
-                int izvodjenjeId  = rs.getInt("izvodjenje_id");
-                LocalDate datum   = rs.getDate("datum").toLocalDate();
-                LocalTime pocetak = rs.getTime("vreme_pocetka").toLocalTime();
+                int terminId        = rs.getInt("termin_id");
+                int izvodjenjeId    = rs.getInt("izvodjenje_id");
+                LocalDate datum     = rs.getDate("datum").toLocalDate();
+                LocalTime pocetak   = rs.getTime("vreme_pocetka").toLocalTime();
                 LocalTime zavrsetak = rs.getTime("vreme_zavrsetka").toLocalTime();
 
-                termini.add(new Termin(terminId, izvodjenjeId, datum, pocetak, zavrsetak));
+                Termin t = new Termin(terminId, izvodjenjeId, datum, pocetak, zavrsetak);
+                t.setNazivIstrazivanja(rs.getString("naziv"));
+                termini.add(t);
             }
             return termini;
         } catch (SQLException e) {

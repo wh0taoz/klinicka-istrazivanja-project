@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import org.example.Config;
 import org.example.controller.LoginController;
 
 public class LoginView {
@@ -62,7 +63,7 @@ public class LoginView {
             if (loginController.login(user, pass)) {
                 message.setStyle("-fx-font-size: 12; -fx-text-fill: #1D9E75;");
                 message.setText("Login successful! Welcome, " + user + ".");
-                MainView mainView = new MainView(stage, user);
+                MainView mainView = new MainView(stage, user, Config.getConnection());
                 mainView.show();
             } else {
                 message.setStyle("-fx-font-size: 12; -fx-text-fill: #e53935;");
