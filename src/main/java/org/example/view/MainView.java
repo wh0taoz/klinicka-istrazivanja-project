@@ -1,25 +1,33 @@
 package org.example.view;
 // gui uradjen pomocu ai
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import org.example.model.Istrazivanje;
+
+import java.rmi.ConnectIOException;
+import java.sql.Connection;
+import java.util.List;
 
 public class MainView {
 
     private final Stage stage;
     private final BorderPane root;
     private final String username;
+    private final Connection connection;
     private VBox content;
 
-    public MainView(Stage stage, String username) {
+    public MainView(Stage stage, String username, Connection connection) {
         this.stage = stage;
         this.username = username;
         this.root = new BorderPane();
         this.root.setStyle("-fx-background-color: #f0f4f8;");
+        this.connection = connection;
     }
 
     public void show() {
@@ -202,22 +210,27 @@ public class MainView {
         Label subtitle = new Label("Overview of planned and completed experiments");
         subtitle.setStyle("-fx-font-size: 13; -fx-text-fill: #888;");
 
-        TableView<String[]> table = createTable(
-                new String[]{"Name", "Protocol", "Hospital", "Status"},
-                new String[][]{
-                        {"Drug trial phase 1", "Protocol A-12", "Clinical Center", "Planned"},
-                        {"Therapy efficacy", "Protocol B-07", "Institute of Oncology", "Started"},
-                        {"Intervention study", "Protocol C-03", "General Hospital", "Completed"},
-                        {"Placebo control", "Protocol D-15", "Clinical Center", "Cancelled"}
-                }
-        );
+        TableView<Istrazivanje> table = new TableView<>();
+        table.setStyle("-fx-font-size: 13;");
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        TableColumn<Istrazivanje, String> colNaziv = new TableColumn<>("Name");
+        colNaziv.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getNaziv()));
+
+        TableColumn<Istrazivanje, String> colProtokol = new TableColumn<>("Protocol ID");
+        colProtokol.setCellValueFactory(data ->
+                new SimpleStringProperty(String.valueOf(data.getValue().getProtokolId())));
+
+        table.getColumns().addAll(colNaziv, colProtokol);
+        List<Istrazivanje> lista = Istrazivanje.readAll(connection);
+        table.getItems().addAll(lista);
 
         VBox.setVgrow(table, Priority.ALWAYS);
         VBox.setMargin(title, new Insets(0, 0, 4, 0));
         VBox.setMargin(subtitle, new Insets(0, 0, 16, 0));
 
         content.getChildren().addAll(title, subtitle, table);
-        // TODO: ucitati podatke iz baze
     }
 
     private void showChangeStatus() {
