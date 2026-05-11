@@ -19,6 +19,7 @@ public class Izvodjenje {
     private int bolnica_id;
     private LocalDate datum;
     private Status status;
+    private String naziv;
 
     public Izvodjenje(int izvodjenje_id, int istrazivanje_id, int bolnica_id, LocalDate datum, Status status) {
         this.izvodjenje_id = izvodjenje_id;
@@ -28,20 +29,27 @@ public class Izvodjenje {
         this.status = status;
     }
 
-    public static List<Izvodjenje> readAll(Connection connection) {
-        String query = "SELECT izvodjenje_id, istrazivanje_id, bolnica_id, datum, status FROM izvodjenje";
+    public static List<Izvodjenje> readAllSaNazivom(Connection connection) {
+        String query = """
+            SELECT iz.izvodjenje_id, iz.istrazivanje_id, iz.bolnica_id, iz.datum, iz.status,
+                   i.naziv
+            FROM izvodjenje iz
+            JOIN istrazivanje i ON iz.istrazivanje_id = i.istrazivanje_id
+            """;
         try {
             Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query);
             List<Izvodjenje> izvodjenja = new ArrayList<>();
             while (rs.next()) {
-                int id            = rs.getInt("izvodjenje_id");
+                int id             = rs.getInt("izvodjenje_id");
                 int istrazivanjeId = rs.getInt("istrazivanje_id");
-                int bolnicaId     = rs.getInt("bolnica_id");
-                LocalDate datum   = rs.getDate("datum").toLocalDate();
-                Status status     = Status.valueOf(rs.getString("status"));
+                int bolnicaId      = rs.getInt("bolnica_id");
+                LocalDate datum    = rs.getDate("datum").toLocalDate();
+                Status status      = Status.valueOf(rs.getString("status"));
 
-                izvodjenja.add(new Izvodjenje(id, istrazivanjeId, bolnicaId, datum, status));
+                Izvodjenje izv = new Izvodjenje(id, istrazivanjeId, bolnicaId, datum, status);
+                izv.setNaziv(rs.getString("naziv")); // vidi dole
+                izvodjenja.add(izv);
             }
             return izvodjenja;
         } catch (SQLException e) {
@@ -64,5 +72,15 @@ public class Izvodjenje {
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
 
+    public String getNaziv() {
+        return naziv;
+    }
+    public void setNaziv(String naziv) {
+        this.naziv = naziv;
+    }
 
+    @Override
+    public String toString() {
+        return naziv;
+    }
 }

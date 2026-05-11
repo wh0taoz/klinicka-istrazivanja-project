@@ -10,6 +10,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.example.model.Istrazivanje;
 import org.example.model.Izvodjenje;
+import org.example.model.Termin;
 
 import java.rmi.ConnectIOException;
 import java.sql.Connection;
@@ -248,7 +249,7 @@ public class MainView {
 
         Label expLabel = createFormLabel("Izvodjenje");
         ComboBox<Izvodjenje> expCombo = new ComboBox<>();
-        expCombo.getItems().addAll(Izvodjenje.readAll(connection));
+        expCombo.getItems().addAll(Izvodjenje.readAllSaNazivom(connection));
         expCombo.setPromptText("Select izvodjenje");
         expCombo.setMaxWidth(Double.MAX_VALUE);
         styleComboBox(expCombo);
@@ -270,7 +271,6 @@ public class MainView {
                 message.setText("Please select both izvodjenje and status.");
                 return;
             }
-            // TODO: update u bazi
             message.setStyle("-fx-font-size: 12; -fx-text-fill: #1D9E75;");
             message.setText("Status updated successfully.");
         });
@@ -290,20 +290,35 @@ public class MainView {
         Label subtitle = new Label("Only sessions from experiments you participate in can be deleted");
         subtitle.setStyle("-fx-font-size: 13; -fx-text-fill: #888;");
 
-        TableView<String[]> table = createTable(
-                new String[]{"Date", "Start", "End", "Experiment"},
-                new String[][]{
-                        {"2026-05-10", "09:00", "11:00", "Drug trial phase 1"},
-                        {"2026-05-12", "13:00", "15:30", "Therapy efficacy"}
-                }
-        );
+        TableView<Termin> table = new TableView<>();
+        table.setStyle("-fx-font-size: 13;");
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        TableColumn<Termin, String> colDatum = new TableColumn<>("Date");
+        colDatum.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getDatum().toString()));
+
+        TableColumn<Termin, String> colPocetak = new TableColumn<>("Start");
+        colPocetak.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getVremePocetka().toString()));
+
+        TableColumn<Termin, String> colZavrsetak = new TableColumn<>("End");
+        colZavrsetak.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getVremeZavrsetka().toString()));
+
+        TableColumn<Termin, String> colNaziv = new TableColumn<>("Experiment");
+        colNaziv.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getNazivIstrazivanja()));
+
+        table.getColumns().addAll(colDatum, colPocetak, colZavrsetak, colNaziv);
+        table.getItems().addAll(Termin.readAllSaNazivom(connection));
 
         VBox.setVgrow(table, Priority.ALWAYS);
         VBox.setMargin(title, new Insets(0, 0, 4, 0));
         VBox.setMargin(subtitle, new Insets(0, 0, 16, 0));
 
         content.getChildren().addAll(title, subtitle, table);
-        // TODO: ucitati sesije iz baze i dodati dugme za brisanje
+        // TODO: dodati dugme za brisanje
     }
 
     // ───────────────────────── helper metode ─────────────────────────
