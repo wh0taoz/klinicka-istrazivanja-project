@@ -3,179 +3,164 @@ CREATE DATABASE klinicka_istrazivanja CHARACTER SET utf8mb4;
 USE klinicka_istrazivanja;
 
 CREATE TABLE bolnica (
-    bolnica_id   INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    naziv        VARCHAR(100) NOT NULL,
-    adresa       VARCHAR(200) NOT NULL
+                         bolnica_id   INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                         naziv        VARCHAR(100) NOT NULL,
+                         adresa       VARCHAR(200) NOT NULL
 );
 
 CREATE TABLE protokol (
-    protokol_id  INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    naziv        VARCHAR(100) NOT NULL,
-    id_oznaka    VARCHAR(50)  NOT NULL UNIQUE,  -- identifikacioni podaci
-    opis         TEXT
+                          protokol_id  INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                          naziv        VARCHAR(100) NOT NULL,
+                          id_oznaka    VARCHAR(50)  NOT NULL UNIQUE,
+                          opis         TEXT
 );
 
 CREATE TABLE istrazivac (
-    istrazivac_id  INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    ime            VARCHAR(50) NOT NULL,
-    prezime        VARCHAR(50) NOT NULL,
-    email          VARCHAR(100) NOT NULL UNIQUE,
-    kvalifikacije  TEXT,
-    tip            ENUM('dizajner', 'izvodjac', 'oba') NOT NULL
+                            istrazivac_id  INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                            ime            VARCHAR(50) NOT NULL,
+                            prezime        VARCHAR(50) NOT NULL,
+                            email          VARCHAR(100) NOT NULL UNIQUE,
+                            kvalifikacije  TEXT,
+                            tip            ENUM('dizajner', 'izvodjac', 'oba') NOT NULL
 );
 
 CREATE TABLE tip_instrumenta (
-    tip_id  INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    naziv   VARCHAR(100) NOT NULL,
-    opis    TEXT
+                                 tip_id  INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                                 naziv   VARCHAR(100) NOT NULL,
+                                 opis    TEXT
 );
 
 CREATE TABLE supstanca (
-    supstanca_id     INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    naziv            VARCHAR(100) NOT NULL,
-    hemijski_sastav  VARCHAR(200),
-    izvor            VARCHAR(100),
-    napomena         TEXT
+                           supstanca_id     INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                           naziv            VARCHAR(100) NOT NULL,
+                           hemijski_sastav  VARCHAR(200),
+                           izvor            VARCHAR(100),
+                           napomena         TEXT
 );
 
 CREATE TABLE pacijent (
-    pacijent_id        INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    ime                VARCHAR(50) NOT NULL,
-    prezime            VARCHAR(50) NOT NULL,
-    datum_rodjenja     DATE        NOT NULL,
-    medicinska_istorija TEXT,
-    napomena           TEXT
+                          pacijent_id        INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                          ime                VARCHAR(50) NOT NULL,
+                          prezime            VARCHAR(50) NOT NULL,
+                          datum_rodjenja     DATE        NOT NULL,
+                          medicinska_istorija TEXT,
+                          napomena           TEXT
 );
 
--- instrument pripada jednoj bolnici i jednom tipu
 CREATE TABLE instrument (
-    instrument_id     INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    bolnica_id        INT         NOT NULL,
-    tip_id            INT         NOT NULL,
-    datum_nabavke     DATE        NOT NULL,
-    datum_proizvodnje DATE,
-    FOREIGN KEY (bolnica_id) REFERENCES bolnica(bolnica_id),
-    FOREIGN KEY (tip_id)     REFERENCES tip_instrumenta(tip_id)
+                            instrument_id     INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                            bolnica_id        INT         NOT NULL,
+                            tip_id            INT         NOT NULL,
+                            datum_nabavke     DATE        NOT NULL,
+                            datum_proizvodnje DATE,
+                            FOREIGN KEY (bolnica_id) REFERENCES bolnica(bolnica_id),
+                            FOREIGN KEY (tip_id)     REFERENCES tip_instrumenta(tip_id)
 );
 
--- pacijent može biti u više bolnica (many-to-many sa atributima)
 CREATE TABLE bolnica_pacijent (
-    bolnica_id       INT         NOT NULL,
-    pacijent_id      INT         NOT NULL,
-    status_prisustva ENUM('aktivan', 'otpušten', 'na_čekanju') NOT NULL DEFAULT 'na_čekanju',
-    datum_prijema    DATE        NOT NULL,
-    iskljucivo       BOOLEAN     NOT NULL DEFAULT FALSE,
-    -- iskljucivo=TRUE znači pacijent ne sme paralelno učestvovati u drugim istraživanjima
-    PRIMARY KEY (bolnica_id, pacijent_id),
-    FOREIGN KEY (bolnica_id)  REFERENCES bolnica(bolnica_id),
-    FOREIGN KEY (pacijent_id) REFERENCES pacijent(pacijent_id)
+                                  bolnica_id       INT         NOT NULL,
+                                  pacijent_id      INT         NOT NULL,
+                                  status_prisustva ENUM('aktivan', 'otpušten', 'na_čekanju') NOT NULL DEFAULT 'na_čekanju',
+                                  datum_prijema    DATE        NOT NULL,
+                                  iskljucivo       BOOLEAN     NOT NULL DEFAULT FALSE,
+                                  PRIMARY KEY (bolnica_id, pacijent_id),
+                                  FOREIGN KEY (bolnica_id)  REFERENCES bolnica(bolnica_id),
+                                  FOREIGN KEY (pacijent_id) REFERENCES pacijent(pacijent_id)
 );
 
--- supstanca može biti u više bolnica (many-to-many sa atributima)
 CREATE TABLE bolnica_supstanca (
-    bolnica_id        INT         NOT NULL,
-    supstanca_id      INT         NOT NULL,
-    dostupna_kolicina DECIMAL(10,2) NOT NULL DEFAULT 0,
-    status            ENUM('dostupna', 'nedostupna', 'naručena') NOT NULL DEFAULT 'dostupna',
-    PRIMARY KEY (bolnica_id, supstanca_id),
-    FOREIGN KEY (bolnica_id)   REFERENCES bolnica(bolnica_id),
-    FOREIGN KEY (supstanca_id) REFERENCES supstanca(supstanca_id)
+                                   bolnica_id        INT         NOT NULL,
+                                   supstanca_id      INT         NOT NULL,
+                                   dostupna_kolicina DECIMAL(10,2) NOT NULL DEFAULT 0,
+                                   status            ENUM('dostupna', 'nedostupna', 'naručena') NOT NULL DEFAULT 'dostupna',
+                                   PRIMARY KEY (bolnica_id, supstanca_id),
+                                   FOREIGN KEY (bolnica_id)   REFERENCES bolnica(bolnica_id),
+                                   FOREIGN KEY (supstanca_id) REFERENCES supstanca(supstanca_id)
 );
 
--- istraživanje ima protokol
 CREATE TABLE istrazivanje (
-    istrazivanje_id  INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    naziv            VARCHAR(200) NOT NULL,
-    protokol_id      INT          NOT NULL,
-    FOREIGN KEY (protokol_id) REFERENCES protokol(protokol_id)
+                              istrazivanje_id  INT          NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                              naziv            VARCHAR(200) NOT NULL,
+                              protokol_id      INT          NOT NULL,
+                              FOREIGN KEY (protokol_id) REFERENCES protokol(protokol_id)
 );
 
--- dizajneri istraživanja (many-to-many)
 CREATE TABLE dizajner_istrazivanja (
-    istrazivanje_id  INT NOT NULL,
-    istrazivac_id    INT NOT NULL,
-    PRIMARY KEY (istrazivanje_id, istrazivac_id),
-    FOREIGN KEY (istrazivanje_id) REFERENCES istrazivanje(istrazivanje_id),
-    FOREIGN KEY (istrazivac_id)   REFERENCES istrazivac(istrazivac_id)
+                                       istrazivanje_id  INT NOT NULL,
+                                       istrazivac_id    INT NOT NULL,
+                                       PRIMARY KEY (istrazivanje_id, istrazivac_id),
+                                       FOREIGN KEY (istrazivanje_id) REFERENCES istrazivanje(istrazivanje_id),
+                                       FOREIGN KEY (istrazivac_id)   REFERENCES istrazivac(istrazivac_id)
 );
 
--- koje supstance su potrebne za istraživanje
 CREATE TABLE istrazivanje_supstanca (
-    istrazivanje_id   INT           NOT NULL,
-    supstanca_id      INT           NOT NULL,
-    potrebna_kolicina DECIMAL(10,2) NOT NULL,
-    PRIMARY KEY (istrazivanje_id, supstanca_id),
-    FOREIGN KEY (istrazivanje_id) REFERENCES istrazivanje(istrazivanje_id),
-    FOREIGN KEY (supstanca_id)    REFERENCES supstanca(supstanca_id)
+                                        istrazivanje_id   INT           NOT NULL,
+                                        supstanca_id      INT           NOT NULL,
+                                        potrebna_kolicina DECIMAL(10,2) NOT NULL,
+                                        PRIMARY KEY (istrazivanje_id, supstanca_id),
+                                        FOREIGN KEY (istrazivanje_id) REFERENCES istrazivanje(istrazivanje_id),
+                                        FOREIGN KEY (supstanca_id)    REFERENCES supstanca(supstanca_id)
 );
 
--- koji tipovi instrumenata su potrebni za istraživanje
 CREATE TABLE istrazivanje_tip_instrumenta (
-    istrazivanje_id  INT NOT NULL,
-    tip_id           INT NOT NULL,
-    PRIMARY KEY (istrazivanje_id, tip_id),
-    FOREIGN KEY (istrazivanje_id) REFERENCES istrazivanje(istrazivanje_id),
-    FOREIGN KEY (tip_id)          REFERENCES tip_instrumenta(tip_id)
+                                              istrazivanje_id  INT NOT NULL,
+                                              tip_id           INT NOT NULL,
+                                              PRIMARY KEY (istrazivanje_id, tip_id),
+                                              FOREIGN KEY (istrazivanje_id) REFERENCES istrazivanje(istrazivanje_id),
+                                              FOREIGN KEY (tip_id)          REFERENCES tip_instrumenta(tip_id)
 );
 
--- izvođenje = konkretno sprovođenje istraživanja u bolnici
 CREATE TABLE izvodjenje (
-    izvodjenje_id    INT  NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    istrazivanje_id  INT  NOT NULL,
-    bolnica_id       INT  NOT NULL,
-    datum            DATE NOT NULL,
-    status           ENUM('planirano','zapoceto','otkazano',
+                            izvodjenje_id    INT  NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                            istrazivanje_id  INT  NOT NULL,
+                            bolnica_id       INT  NOT NULL,
+                            datum            DATE NOT NULL,
+                            status           ENUM('planirano','zapoceto','otkazano',
                           'uspesno','neuspesno') NOT NULL DEFAULT 'planirano',
-    FOREIGN KEY (istrazivanje_id) REFERENCES istrazivanje(istrazivanje_id),
-    FOREIGN KEY (bolnica_id)      REFERENCES bolnica(bolnica_id)
+                            FOREIGN KEY (istrazivanje_id) REFERENCES istrazivanje(istrazivanje_id),
+                            FOREIGN KEY (bolnica_id)      REFERENCES bolnica(bolnica_id)
 );
 
--- koji istraživači učestvuju u izvođenju i u kojoj ulozi
 CREATE TABLE ucesnik_izvodjenja (
-    izvodjenje_id  INT          NOT NULL,
-    istrazivac_id  INT          NOT NULL,
-    uloga          VARCHAR(100) NOT NULL,
-    putanja_beleske VARCHAR(300),
-    PRIMARY KEY (izvodjenje_id, istrazivac_id),
-    FOREIGN KEY (izvodjenje_id) REFERENCES izvodjenje(izvodjenje_id),
-    FOREIGN KEY (istrazivac_id) REFERENCES istrazivac(istrazivac_id)
+                                    izvodjenje_id  INT          NOT NULL,
+                                    istrazivac_id  INT          NOT NULL,
+                                    uloga          VARCHAR(100) NOT NULL,
+                                    putanja_beleske VARCHAR(300),
+                                    PRIMARY KEY (izvodjenje_id, istrazivac_id),
+                                    FOREIGN KEY (izvodjenje_id) REFERENCES izvodjenje(izvodjenje_id),
+                                    FOREIGN KEY (istrazivac_id) REFERENCES istrazivac(istrazivac_id)
 );
 
--- termin (sesija) vezan za jedno izvođenje
 CREATE TABLE termin (
-    termin_id      INT      NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    izvodjenje_id  INT      NOT NULL,
-    datum          DATE     NOT NULL,
-    vreme_pocetka  TIME     NOT NULL,
-    vreme_zavrsetka TIME    NOT NULL,
-    FOREIGN KEY (izvodjenje_id) REFERENCES izvodjenje(izvodjenje_id)
+                        termin_id      INT      NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                        izvodjenje_id  INT      NOT NULL,
+                        datum          DATE     NOT NULL,
+                        vreme_pocetka  TIME     NOT NULL,
+                        vreme_zavrsetka TIME    NOT NULL,
+                        FOREIGN KEY (izvodjenje_id) REFERENCES izvodjenje(izvodjenje_id)
 );
 
--- utrošak supstanci po terminu — inventar se ažurira triggerom
 CREATE TABLE utrosak_supstance (
-    termin_id    INT           NOT NULL,
-    supstanca_id INT           NOT NULL,
-    bolnica_id   INT           NOT NULL,
-    kolicina     DECIMAL(10,2) NOT NULL,
-    PRIMARY KEY (termin_id, supstanca_id),
-    FOREIGN KEY (termin_id)    REFERENCES termin(termin_id),
-    FOREIGN KEY (supstanca_id, bolnica_id)
-        REFERENCES bolnica_supstanca(supstanca_id, bolnica_id)
+                                   termin_id    INT           NOT NULL,
+                                   supstanca_id INT           NOT NULL,
+                                   bolnica_id   INT           NOT NULL,
+                                   kolicina     DECIMAL(10,2) NOT NULL,
+                                   PRIMARY KEY (termin_id, supstanca_id),
+                                   FOREIGN KEY (termin_id)    REFERENCES termin(termin_id),
+                                   FOREIGN KEY (supstanca_id, bolnica_id)
+                                       REFERENCES bolnica_supstanca(supstanca_id, bolnica_id)
 );
 
--- utrošak instrumenata po terminu
 CREATE TABLE utrosak_instrumenta (
-    termin_id     INT NOT NULL,
-    instrument_id INT NOT NULL,
-    PRIMARY KEY (termin_id, instrument_id),
-    FOREIGN KEY (termin_id)     REFERENCES termin(termin_id),
-    FOREIGN KEY (instrument_id) REFERENCES instrument(instrument_id)
+                                     termin_id     INT NOT NULL,
+                                     instrument_id INT NOT NULL,
+                                     PRIMARY KEY (termin_id, instrument_id),
+                                     FOREIGN KEY (termin_id)     REFERENCES termin(termin_id),
+                                     FOREIGN KEY (instrument_id) REFERENCES instrument(instrument_id)
 );
-USE klinicka_istrazivanja;
 
--- generisano pomocu ai
 -- ─────────────────────────────────────────
--- bolnica (~25 redova)
+-- bolnica (25 redova)
 -- ─────────────────────────────────────────
 INSERT INTO bolnica (naziv, adresa) VALUES
                                         ('Klinički centar Srbije', 'Pasterova 2, Beograd'),
@@ -205,7 +190,7 @@ INSERT INTO bolnica (naziv, adresa) VALUES
                                         ('Opšta bolnica Novi Pazar', 'Generala Živkovića 1, Novi Pazar');
 
 -- ─────────────────────────────────────────
--- tip_instrumenta (~18 redova)
+-- tip_instrumenta (18 redova)
 -- ─────────────────────────────────────────
 INSERT INTO tip_instrumenta (naziv, opis) VALUES
                                               ('EKG aparat', 'Elektrokardiograf za snimanje električne aktivnosti srca'),
@@ -329,10 +314,12 @@ INSERT INTO protokol (naziv, id_oznaka, opis) VALUES
                                                   ('Protokol obrazovne intervencije', 'PROT-EDU-001', 'Edukacija pacijenata sa T2DM o samomonitoringu glikemije'),
                                                   ('Protokol psihoonkologije', 'PROT-PSO-001', 'Mindfulness-based intervencija kod onkoloških pacijenata'),
                                                   ('Protokol brige o ranama', 'PROT-WND-001', 'Negativni pritisak u lečenju hroničnih rana'),
-                                                  ('Protokol infektivnih bolesti', 'PROT-INF-003', 'Optimizacija antibiotske terapije gram-negativnih sepsi');
+                                                  ('Protokol infektivnih bolesti', 'PROT-INF-003', 'Optimizacija antibiotske terapije gram-negativnih sepsi'),
+-- FIX: dodat 100. protokol (potreban za istrazivanje protokol_id=100)
+                                                  ('Protokol kliničkih studija faze IV', 'PROT-FAZ-001', 'Postmarketinško praćenje bezbednosti lekova');
 
 -- ─────────────────────────────────────────
--- istrazivac (100 redova)
+-- istrazivac (97 redova)
 -- ─────────────────────────────────────────
 INSERT INTO istrazivac (ime, prezime, email, kvalifikacije, tip) VALUES
                                                                      ('Marko', 'Petrović', 'marko.petrovic@kcs.ac.rs', 'MD, PhD, kardiolog', 'oba'),
@@ -450,7 +437,7 @@ INSERT INTO supstanca (naziv, hemijski_sastav, izvor, napomena) VALUES
                                                                     ('Insulin glargin', 'C267H404N72O78S6', 'Sanofi', 'Dugodejstvujući insulin analog'),
                                                                     ('Insulin aspart', 'C256H381N65O79S6', 'Novo Nordisk', 'Brzo dejstvujući insulin analog'),
                                                                     ('Adalimumab', 'Monoklonsko antitelo', 'AbbVie', 'Anti-TNF biološki lek'),
-                                                                    ('Etanercept', 'Fúzijski protein', 'Pfizer', 'Anti-TNF fúzijski protein'),
+                                                                    ('Etanercept', 'Fuzijski protein', 'Pfizer', 'Anti-TNF fuzijski protein'),
                                                                     ('Infliksimab', 'Himerno antitelo', 'Janssen', 'Anti-TNF biološki lek'),
                                                                     ('Rituksimab', 'Himerno antitelo', 'Roche', 'Anti-CD20 monoklonsko antitelo'),
                                                                     ('Trastuzumab', 'Humanizovano antitelo', 'Roche', 'Anti-HER2 biološki lek'),
@@ -535,7 +522,9 @@ INSERT INTO supstanca (naziv, hemijski_sastav, izvor, napomena) VALUES
                                                                     ('Glukoza 5%', 'C6H12O6', 'Generički', 'Kalorijski rastvor za i.v. primenu'),
                                                                     ('Albumin 20%', 'Humani albumin', 'Octapharma', 'Koloidni rastvor za nadoknadu volumena'),
                                                                     ('Imunoglobulin i.v.', 'Polivalentni IgG', 'Octapharma', 'Imunomodulatorni lek'),
-                                                                    ('Eritropoetin alfa', 'Glikozilisani protein', 'Roche', 'Stimulator eritropoeze');
+                                                                    ('Eritropoetin alfa', 'Glikozilisani protein', 'Roche', 'Stimulator eritropoeze'),
+-- FIX: dodat 100. red (potreban za istrazivanje_supstanca supstanca_id=100)
+                                                                    ('Trombopoietin alfa', 'Rekombinantni protein', 'Amgen', 'Stimulator trombocitopoeze');
 
 -- ─────────────────────────────────────────
 -- pacijent (100 redova)
@@ -594,15 +583,15 @@ INSERT INTO pacijent (ime, prezime, datum_rodjenja, medicinska_istorija, napomen
                                                                                        ('Tomislav', 'Đorđević', '1937-05-03', 'Hronična limfocitna leukemija stadijum III', NULL),
                                                                                        ('Nina', 'Petrović', '1996-07-16', 'Dijabetes tip 1, ketoacidoza u anamnezi', NULL),
                                                                                        ('Nenad', 'Stanojević', '1955-02-27', 'Karcinom pankrensa stadijum II', NULL),
-                                                                                       ('Maja', 'Bogosavljević', '1980-09-21', 'Depresija, bipolarnI poremećaj tip II', NULL),
-                                                                                       ('Vladimir', 'Krstić', '1973-04-08', 'Hronični bubrežni zatajenje stadium 4, dijabetična nefropatija', NULL),
-                                                                                       ('Branka', 'Milić', '1961-11-15', 'Karcinom štitaste žlezde, papilarne', NULL),
+                                                                                       ('Maja', 'Bogosavljević', '1980-09-21', 'Depresija, bipolarni poremećaj tip II', NULL),
+                                                                                       ('Vladimir', 'Krstić', '1973-04-08', 'Hronično bubrežno zatajenje stadium 4, dijabetična nefropatija', NULL),
+                                                                                       ('Branka', 'Milić', '1961-11-15', 'Karcinom štitaste žlezde, papilarni', NULL),
                                                                                        ('Predrag', 'Janković', '1986-06-30', 'Ulcerozni kolitis, pankolitis', NULL),
                                                                                        ('Ljiljana', 'Simović', '1949-01-24', 'Osteoartritis kolena bilateralno', NULL),
                                                                                        ('Radovan', 'Veselinović', '1976-08-12', 'Hipertenzija stadijum 2, dijabetes tip 2', NULL),
                                                                                        ('Miroslava', 'Đorđević', '1990-03-05', 'Multipla skleroza, primarno progresivna', NULL),
                                                                                        ('Dragoljub', 'Stanković', '1944-10-18', 'Hronična srčana insuficijencija NYHA III', NULL),
-                                                                                       ('Sanja', 'Vukovic', '1983-07-09', 'Karcinom dojke ER+/PR+, luminal A', NULL),
+                                                                                       ('Sanja', 'Vuković', '1983-07-09', 'Karcinom dojke ER+/PR+, luminal A', NULL),
                                                                                        ('Stanislav', 'Popović', '1968-02-22', 'Dijabetes tip 2, makroangiopatija', NULL),
                                                                                        ('Daliborka', 'Radojičić', '1952-09-14', 'Atrijalna fibrilacija, hronična forma', NULL),
                                                                                        ('Nemanja', 'Avramović', '1992-05-27', 'Crohnova bolest, ileocolitis', NULL),
@@ -619,7 +608,7 @@ INSERT INTO pacijent (ime, prezime, datum_rodjenja, medicinska_istorija, napomen
                                                                                        ('Jadranka', 'Milovanović', '1980-09-18', 'Sistemska skleroza, difuzna forma', NULL),
                                                                                        ('Stevan', 'Vuković', '1965-12-01', 'Ishemični moždani udar u anamnezi', NULL),
                                                                                        ('Slavoljub', 'Petrović', '1953-03-14', 'Hronična opstruktivna plućna bolest III stadijum', NULL),
-                                                                                       ('Vesna', 'Đorđević', '1988-06-27', 'Psorijaza, erytrodermički tip', NULL),
+                                                                                       ('Vesna', 'Đorđević', '1988-06-27', 'Psorijaza, eritrodermički tip', NULL),
                                                                                        ('Milutin', 'Stanković', '1945-11-10', 'Aortna insuficijencija umerena', NULL),
                                                                                        ('Zorana', 'Filipović', '1973-04-23', 'Karcinom debelog creva stadijum III', NULL),
                                                                                        ('Dragoljub', 'Milošević', '1960-09-06', 'Dijabetes tip 2, kardiomiopatija', NULL),
@@ -632,17 +621,19 @@ INSERT INTO pacijent (ime, prezime, datum_rodjenja, medicinska_istorija, napomen
                                                                                        ('Biljana', 'Stanojević', '1997-10-07', 'Dijabetes tip 1, juvenilni onset', NULL),
                                                                                        ('Milorad', 'Avramović', '1951-01-20', 'Karcinom jednjaka stadijum IIb', NULL),
                                                                                        ('Svetlana', 'Đurđević', '1979-06-03', 'Celjakija, refraktorna forma', NULL),
-                                                                                       ('Bogdan', 'Marković', '1966-11-16', 'Chronična srčana insuficijencija EF 25%', 'Kandidat za transplantaciju'),
+                                                                                       ('Bogdan', 'Marković', '1966-11-16', 'Hronična srčana insuficijencija EF 25%', 'Kandidat za transplantaciju'),
                                                                                        ('Jagoda', 'Paunović', '1955-04-29', 'Karcinom jetre, HCC', NULL),
-                                                                                       ('Drago', 'Milijić', '1939-09-12', 'Artrioskleroza donjih ekstremiteta stadijum III', NULL),
+                                                                                       ('Drago', 'Milijić', '1939-09-12', 'Arterioskleroza donjih ekstremiteta stadijum III', NULL),
                                                                                        ('Milunka', 'Dimitrijević', '1982-02-25', 'Sistemski vaskulitis, ANCA asocirani', NULL),
                                                                                        ('Saša', 'Cvetković', '1947-07-08', 'Multipli mijelom, IgG kappa tip', NULL),
                                                                                        ('Tamara', 'Jović', '1995-12-21', 'Crohnova bolest, fistulizantna forma', NULL),
                                                                                        ('Radenko', 'Savić', '1974-05-14', 'Dijabetes tip 2, stadijum 3 HBB', NULL),
-                                                                                       ('Zorica', 'Petrović', '1961-10-27', 'Postmenopauza, osteoporoza', NULL);
+                                                                                       ('Zorica', 'Petrović', '1961-10-27', 'Postmenopauza, osteoporoza', NULL),
+-- FIX: dodat 100. pacijent (potreban za bolnica_pacijent pacijent_id=100)
+                                                                                       ('Dragan', 'Cvetanović', '1980-05-15', 'Dijabetes tip 2', NULL);
 
 -- ─────────────────────────────────────────
--- instrument (100 redova)
+-- instrument (96 redova)
 -- ─────────────────────────────────────────
 INSERT INTO instrument (bolnica_id, tip_id, datum_nabavke, datum_proizvodnje) VALUES
                                                                                   (1,1,'2018-03-15','2017-11-20'),(1,2,'2019-06-10','2019-01-05'),(1,3,'2020-01-22','2019-08-14'),
@@ -679,7 +670,7 @@ INSERT INTO instrument (bolnica_id, tip_id, datum_nabavke, datum_proizvodnje) VA
                                                                                   (21,1,'2022-01-25','2021-08-12'),(21,4,'2020-09-08','2020-04-22'),(21,9,'2018-04-15','2017-10-28');
 
 -- ─────────────────────────────────────────
--- bolnica_pacijent (120 redova)
+-- bolnica_pacijent
 -- ─────────────────────────────────────────
 INSERT INTO bolnica_pacijent (bolnica_id, pacijent_id, status_prisustva, datum_prijema, iskljucivo) VALUES
                                                                                                         (1,1,'aktivan','2024-01-15',FALSE),(1,2,'aktivan','2024-02-10',FALSE),(1,3,'aktivan','2024-03-05',TRUE),
@@ -722,30 +713,39 @@ INSERT INTO bolnica_pacijent (bolnica_id, pacijent_id, status_prisustva, datum_p
                                                                                                         (25,12,'aktivan','2024-03-15',FALSE);
 
 -- ─────────────────────────────────────────
--- bolnica_supstanca (120 redova)
+-- bolnica_supstanca
+-- FIX: dodati svi parovi potrebni za utrosak_supstance
 -- ─────────────────────────────────────────
 INSERT INTO bolnica_supstanca (bolnica_id, supstanca_id, dostupna_kolicina, status) VALUES
                                                                                         (1,1,500.00,'dostupna'),(1,2,300.00,'dostupna'),(1,3,200.00,'dostupna'),(1,4,1000.00,'dostupna'),
                                                                                         (1,5,400.00,'dostupna'),(1,6,350.00,'dostupna'),(1,7,250.00,'dostupna'),(1,8,150.00,'dostupna'),
                                                                                         (1,9,80.00,'dostupna'),(1,10,120.00,'dostupna'),(1,11,90.00,'dostupna'),(1,12,85.00,'dostupna'),
-                                                                                        (1,21,60.00,'dostupna'),(1,22,45.00,'dostupna'),(1,90,500.00,'dostupna'),
+                                                                                        (1,13,100.00,'dostupna'),(1,14,100.00,'dostupna'),(1,21,60.00,'dostupna'),(1,22,45.00,'dostupna'),
+                                                                                        (1,25,100.00,'dostupna'),(1,30,100.00,'dostupna'),(1,36,100.00,'dostupna'),(1,37,100.00,'dostupna'),
+                                                                                        (1,38,100.00,'dostupna'),(1,42,100.00,'dostupna'),(1,71,100.00,'dostupna'),(1,73,100.00,'dostupna'),
+                                                                                        (1,74,100.00,'dostupna'),(1,79,100.00,'dostupna'),(1,84,100.00,'dostupna'),(1,85,100.00,'dostupna'),
+                                                                                        (1,88,100.00,'dostupna'),(1,89,100.00,'dostupna'),(1,90,500.00,'dostupna'),(1,91,100.00,'dostupna'),
+                                                                                        (1,96,100.00,'dostupna'),(1,97,100.00,'dostupna'),(1,98,100.00,'dostupna'),
                                                                                         (2,13,30.00,'dostupna'),(2,14,25.00,'dostupna'),(2,15,20.00,'dostupna'),(2,16,15.00,'dostupna'),
                                                                                         (2,17,12.00,'dostupna'),(2,18,10.00,'dostupna'),(2,19,8.00,'dostupna'),(2,20,7.00,'dostupna'),
                                                                                         (2,21,50.00,'dostupna'),(2,22,40.00,'dostupna'),(2,23,35.00,'dostupna'),(2,24,30.00,'dostupna'),
                                                                                         (3,1,400.00,'dostupna'),(3,2,250.00,'dostupna'),(3,5,300.00,'dostupna'),(3,8,100.00,'dostupna'),
-                                                                                        (3,9,60.00,'dostupna'),(3,25,200.00,'dostupna'),(3,26,150.00,'dostupna'),(3,29,500.00,'dostupna'),
-                                                                                        (3,30,400.00,'dostupna'),(4,1,300.00,'dostupna'),(4,4,800.00,'dostupna'),(4,7,200.00,'dostupna'),
-                                                                                        (4,31,100.00,'dostupna'),(4,32,80.00,'dostupna'),(4,43,500.00,'dostupna'),(4,44,300.00,'dostupna'),
+                                                                                        (3,9,60.00,'dostupna'),(3,15,100.00,'dostupna'),(3,25,200.00,'dostupna'),(3,26,150.00,'dostupna'),
+                                                                                        (3,29,500.00,'dostupna'),(3,30,400.00,'dostupna'),(3,81,100.00,'dostupna'),
+                                                                                        (4,1,300.00,'dostupna'),(4,4,800.00,'dostupna'),(4,7,200.00,'dostupna'),(4,31,100.00,'dostupna'),
+                                                                                        (4,32,80.00,'dostupna'),(4,43,500.00,'dostupna'),(4,44,300.00,'dostupna'),(4,58,100.00,'dostupna'),
+                                                                                        (4,59,100.00,'dostupna'),
                                                                                         (5,1,200.00,'dostupna'),(5,45,150.00,'dostupna'),(5,46,120.00,'dostupna'),(5,47,100.00,'dostupna'),
                                                                                         (5,48,80.00,'dostupna'),(5,49,60.00,'dostupna'),(5,50,40.00,'dostupna'),
                                                                                         (6,1,600.00,'dostupna'),(6,6,400.00,'dostupna'),(6,7,300.00,'dostupna'),(6,9,100.00,'dostupna'),
                                                                                         (6,10,80.00,'dostupna'),(6,82,200.00,'dostupna'),(6,83,150.00,'dostupna'),(6,84,100.00,'dostupna'),
                                                                                         (7,1,350.00,'dostupna'),(7,2,200.00,'dostupna'),(7,4,600.00,'dostupna'),(7,51,80.00,'dostupna'),
-                                                                                        (7,52,60.00,'dostupna'),(7,53,40.00,'dostupna'),(7,54,30.00,'dostupna'),
+                                                                                        (7,52,60.00,'dostupna'),(7,53,40.00,'dostupna'),(7,54,30.00,'dostupna'),(7,55,100.00,'dostupna'),
+                                                                                        (7,57,100.00,'dostupna'),(7,76,100.00,'dostupna'),
                                                                                         (8,1,250.00,'dostupna'),(8,3,150.00,'dostupna'),(8,55,100.00,'dostupna'),(8,56,80.00,'dostupna'),
                                                                                         (8,57,60.00,'dostupna'),(8,58,40.00,'dostupna'),(8,59,30.00,'dostupna'),
                                                                                         (9,1,180.00,'dostupna'),(9,4,700.00,'dostupna'),(9,45,200.00,'dostupna'),(9,46,150.00,'dostupna'),
-                                                                                        (9,47,100.00,'dostupna'),(9,48,80.00,'dostupna'),
+                                                                                        (9,47,100.00,'dostupna'),(9,48,80.00,'dostupna'),(9,50,100.00,'dostupna'),
                                                                                         (10,1,150.00,'dostupna'),(10,2,100.00,'dostupna'),(10,60,50.00,'dostupna'),(10,61,40.00,'dostupna'),
                                                                                         (10,62,30.00,'dostupna'),(10,63,20.00,'dostupna'),
                                                                                         (11,1,200.00,'dostupna'),(11,4,500.00,'dostupna'),(11,64,80.00,'dostupna'),(11,65,60.00,'dostupna'),
@@ -755,7 +755,8 @@ INSERT INTO bolnica_supstanca (bolnica_id, supstanca_id, dostupna_kolicina, stat
                                                                                         (14,1,350.00,'dostupna'),(14,25,200.00,'dostupna'),(14,26,150.00,'dostupna'),(14,27,100.00,'dostupna'),
                                                                                         (15,1,200.00,'dostupna'),(15,73,80.00,'dostupna'),(15,74,60.00,'dostupna'),
                                                                                         (16,1,150.00,'dostupna'),(16,75,100.00,'dostupna'),(16,76,80.00,'dostupna'),
-                                                                                        (17,1,400.00,'dostupna'),(17,11,200.00,'dostupna'),(17,12,150.00,'dostupna'),(17,90,300.00,'dostupna'),
+                                                                                        (17,1,400.00,'dostupna'),(17,11,200.00,'dostupna'),(17,12,150.00,'dostupna'),(17,87,100.00,'dostupna'),
+                                                                                        (17,90,300.00,'dostupna'),(17,92,100.00,'dostupna'),
                                                                                         (18,1,180.00,'dostupna'),(18,77,60.00,'dostupna'),(18,78,40.00,'dostupna'),
                                                                                         (19,1,160.00,'dostupna'),(19,79,50.00,'dostupna'),(19,80,40.00,'dostupna'),
                                                                                         (20,1,140.00,'dostupna'),(20,81,70.00,'dostupna'),(20,85,50.00,'dostupna');
@@ -866,7 +867,7 @@ INSERT INTO istrazivanje (naziv, protokol_id) VALUES
                                                   ('Sorafenib kod hepatocelularnog karcinoma', 43);
 
 -- ─────────────────────────────────────────
--- dizajner_istrazivanja (110 redova)
+-- dizajner_istrazivanja
 -- ─────────────────────────────────────────
 INSERT INTO dizajner_istrazivanja (istrazivanje_id, istrazivac_id) VALUES
                                                                        (1,1),(1,32),(2,7),(2,39),(3,2),(3,30),(4,13),(4,45),(5,8),(5,34),
@@ -891,7 +892,7 @@ INSERT INTO dizajner_istrazivanja (istrazivanje_id, istrazivac_id) VALUES
                                                                        (96,8),(96,34),(97,8),(97,34),(98,8),(98,34),(99,8),(99,34),(100,24),(100,47);
 
 -- ─────────────────────────────────────────
--- istrazivanje_supstanca (110 redova)
+-- istrazivanje_supstanca
 -- ─────────────────────────────────────────
 INSERT INTO istrazivanje_supstanca (istrazivanje_id, supstanca_id, potrebna_kolicina) VALUES
                                                                                           (1,38,100.00),(1,6,150.00),(2,2,200.00),(3,19,15.00),(4,71,500.00),
@@ -919,7 +920,7 @@ INSERT INTO istrazivanje_supstanca (istrazivanje_id, supstanca_id, potrebna_koli
                                                                                           (96,98,60.00),(97,99,70.00),(98,100,80.00),(99,21,45.00),(100,79,35.00);
 
 -- ─────────────────────────────────────────
--- istrazivanje_tip_instrumenta (60 redova)
+-- istrazivanje_tip_instrumenta
 -- ─────────────────────────────────────────
 INSERT INTO istrazivanje_tip_instrumenta (istrazivanje_id, tip_id) VALUES
                                                                        (1,1),(1,16),(2,1),(2,16),(3,9),(3,10),(4,1),(4,8),(5,9),(5,12),
@@ -969,7 +970,7 @@ INSERT INTO izvodjenje (istrazivanje_id, bolnica_id, datum, status) VALUES
                                                                         (50,1,'2024-03-01','planirano');
 
 -- ─────────────────────────────────────────
--- ucesnik_izvodjenja (110 redova)
+-- ucesnik_izvodjenja
 -- ─────────────────────────────────────────
 INSERT INTO ucesnik_izvodjenja (izvodjenje_id, istrazivac_id, uloga, putanja_beleske) VALUES
                                                                                           (1,3,'Glavni izvođač','/beleske/izv1_stefan.pdf'),(1,31,'Asistent',NULL),
@@ -1025,6 +1026,7 @@ INSERT INTO ucesnik_izvodjenja (izvodjenje_id, istrazivac_id, uloga, putanja_bel
 
 -- ─────────────────────────────────────────
 -- termin (100 redova)
+-- FIX: dodata 2 reda da bi termin_id dostigao 100
 -- ─────────────────────────────────────────
 INSERT INTO termin (izvodjenje_id, datum, vreme_pocetka, vreme_zavrsetka) VALUES
                                                                               (1,'2024-01-10','08:00:00','10:00:00'),(1,'2024-01-17','08:00:00','10:00:00'),
@@ -1075,10 +1077,12 @@ INSERT INTO termin (izvodjenje_id, datum, vreme_pocetka, vreme_zavrsetka) VALUES
                                                                               (31,'2024-02-01','13:00:00','15:00:00'),(33,'2024-02-05','13:00:00','15:00:00'),
                                                                               (37,'2024-01-26','13:00:00','15:00:00'),(39,'2024-01-29','13:00:00','15:00:00'),
                                                                               (41,'2024-02-03','13:00:00','15:00:00'),(45,'2024-01-24','13:00:00','15:00:00'),
-                                                                              (47,'2024-01-19','13:00:00','15:00:00'),(49,'2024-02-01','13:00:00','15:00:00');
+                                                                              (47,'2024-01-19','13:00:00','15:00:00'),(49,'2024-02-01','13:00:00','15:00:00'),
+-- FIX: dodana 2 reda da termin_id dostigne 100 (potrebno za utrosak_supstance)
+                                                                              (2,'2024-03-01','14:00:00','16:00:00'),(4,'2024-03-08','14:00:00','16:00:00');
 
 -- ─────────────────────────────────────────
--- utrosak_supstance (100 redova)
+-- utrosak_supstance
 -- ─────────────────────────────────────────
 INSERT INTO utrosak_supstance (termin_id, supstanca_id, bolnica_id, kolicina) VALUES
                                                                                   (1,38,1,5.00),(1,6,1,8.00),(2,38,1,5.00),(2,6,1,8.00),
@@ -1111,7 +1115,7 @@ INSERT INTO utrosak_supstance (termin_id, supstanca_id, bolnica_id, kolicina) VA
                                                                                   (99,21,2,5.00),(100,79,1,3.50);
 
 -- ─────────────────────────────────────────
--- utrosak_instrumenta (60 redova)
+-- utrosak_instrumenta
 -- ─────────────────────────────────────────
 INSERT INTO utrosak_instrumenta (termin_id, instrument_id) VALUES
                                                                (1,1),(1,8),(2,1),(2,8),(3,2),(3,7),(4,2),(4,7),(5,11),(5,14),
