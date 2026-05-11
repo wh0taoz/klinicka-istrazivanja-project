@@ -1,5 +1,8 @@
 package org.example.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,7 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-
+@Getter
+@Setter
 public class Termin {
 
     private int termin_id;
@@ -53,32 +57,5 @@ public class Termin {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-    public int getTermin_id() { return termin_id; }
-    public void setTermin_id(int termin_id) { this.termin_id = termin_id; }
-
-    public int getIzvodjenje_id() { return izvodjenje_id; }
-    public void setIzvodjenje_id(int izvodjenje_id) { this.izvodjenje_id = izvodjenje_id; }
-
-    public LocalDate getDatum() { return datum; }
-    public void setDatum(LocalDate datum) { this.datum = datum; }
-
-    public LocalTime getVremePocetka() { return vremePocetka; }
-    public void setVremePocetka(LocalTime vremePocetka) { this.vremePocetka = vremePocetka; }
-
-    public LocalTime getVremeZavrsetka() { return vremeZavrsetka; }
-    public void setVremeZavrsetka(LocalTime vremeZavrsetka) { this.vremeZavrsetka = vremeZavrsetka; }
-
-    public String getNazivIstrazivanja() {
-        return nazivIstrazivanja;
-    }
-
-    public void setNazivIstrazivanja(String nazivIstrazivanja) {
-        this.nazivIstrazivanja = nazivIstrazivanja;
-    }
-
-    @Override
-    public String toString() {
-        return nazivIstrazivanja;
     }
 }

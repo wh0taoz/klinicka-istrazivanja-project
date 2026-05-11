@@ -1,14 +1,19 @@
 package org.example.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
+@Getter
+@Setter
 public class Istrazivanje {
 
+    @Getter
     private int istrazivanje_id;
     private String naziv;
     private int protokol_id;
@@ -38,15 +43,6 @@ public class Istrazivanje {
             throw new RuntimeException(e);
         }
     }
-
-    public int getIstrazivanje_id() { return istrazivanje_id; }
-    public void setIstrazivanje_id(int istrazivanje_id) { this.istrazivanje_id = istrazivanje_id; }
-
-    public String getNaziv() { return naziv; }
-    public void setNaziv(String naziv) { this.naziv = naziv; }
-
-    public int getProtokolId() { return protokol_id; }
-    public void setProtokolId(int protokol_id) { this.protokol_id = protokol_id; }
 
     @Override
     public String toString() { return naziv; }

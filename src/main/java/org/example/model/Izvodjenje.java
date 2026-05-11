@@ -1,5 +1,7 @@
 package org.example.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,6 +10,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.time.LocalDate;
+@Getter
+@Setter
 public class Izvodjenje {
 
     public enum Status {
