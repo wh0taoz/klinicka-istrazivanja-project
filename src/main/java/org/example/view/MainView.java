@@ -1,25 +1,35 @@
 package org.example.view;
 // gui uradjen pomocu ai
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import org.example.model.Istrazivanje;
+import org.example.model.Izvodjenje;
+import org.example.model.Termin;
+
+import java.rmi.ConnectIOException;
+import java.sql.Connection;
+import java.util.List;
 
 public class MainView {
 
     private final Stage stage;
     private final BorderPane root;
     private final String username;
+    private final Connection connection;
     private VBox content;
 
-    public MainView(Stage stage, String username) {
+    public MainView(Stage stage, String username, Connection connection) {
         this.stage = stage;
         this.username = username;
         this.root = new BorderPane();
         this.root.setStyle("-fx-background-color: #f0f4f8;");
+        this.connection = connection;
     }
 
     public void show() {
@@ -202,22 +212,27 @@ public class MainView {
         Label subtitle = new Label("Overview of planned and completed experiments");
         subtitle.setStyle("-fx-font-size: 13; -fx-text-fill: #888;");
 
-        TableView<String[]> table = createTable(
-                new String[]{"Name", "Protocol", "Hospital", "Status"},
-                new String[][]{
-                        {"Drug trial phase 1", "Protocol A-12", "Clinical Center", "Planned"},
-                        {"Therapy efficacy", "Protocol B-07", "Institute of Oncology", "Started"},
-                        {"Intervention study", "Protocol C-03", "General Hospital", "Completed"},
-                        {"Placebo control", "Protocol D-15", "Clinical Center", "Cancelled"}
-                }
-        );
+        TableView<Istrazivanje> table = new TableView<>();
+        table.setStyle("-fx-font-size: 13;");
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        TableColumn<Istrazivanje, String> colNaziv = new TableColumn<>("Name");
+        colNaziv.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getNaziv()));
+
+        TableColumn<Istrazivanje, String> colProtokol = new TableColumn<>("Protocol ID");
+        colProtokol.setCellValueFactory(data ->
+                new SimpleStringProperty(String.valueOf(data.getValue().getProtokolId())));
+
+        table.getColumns().addAll(colNaziv, colProtokol);
+        List<Istrazivanje> lista = Istrazivanje.readAll(connection);
+        table.getItems().addAll(lista);
 
         VBox.setVgrow(table, Priority.ALWAYS);
         VBox.setMargin(title, new Insets(0, 0, 4, 0));
         VBox.setMargin(subtitle, new Insets(0, 0, 16, 0));
 
         content.getChildren().addAll(title, subtitle, table);
-        // TODO: ucitati podatke iz baze
     }
 
     private void showChangeStatus() {
@@ -232,16 +247,16 @@ public class MainView {
         form.setMaxWidth(400);
         VBox.setMargin(form, new Insets(16, 0, 0, 0));
 
-        Label expLabel = createFormLabel("Experiment");
-        ComboBox<String> expCombo = new ComboBox<>();
-        expCombo.getItems().addAll("Drug trial phase 1", "Therapy efficacy", "Intervention study");
-        expCombo.setPromptText("Select experiment");
+        Label expLabel = createFormLabel("Izvodjenje");
+        ComboBox<Izvodjenje> expCombo = new ComboBox<>();
+        expCombo.getItems().addAll(Izvodjenje.readAllSaNazivom(connection));
+        expCombo.setPromptText("Select izvodjenje");
         expCombo.setMaxWidth(Double.MAX_VALUE);
         styleComboBox(expCombo);
 
         Label statusLabel = createFormLabel("New status");
-        ComboBox<String> statusCombo = new ComboBox<>();
-        statusCombo.getItems().addAll("Planned", "Started", "Cancelled", "Completed successfully", "Completed unsuccessfully");
+        ComboBox<Izvodjenje.Status> statusCombo = new ComboBox<>();
+        statusCombo.getItems().addAll(Izvodjenje.Status.values());
         statusCombo.setPromptText("Select status");
         statusCombo.setMaxWidth(Double.MAX_VALUE);
         styleComboBox(statusCombo);
@@ -253,12 +268,11 @@ public class MainView {
         saveBtn.setOnAction(e -> {
             if (expCombo.getValue() == null || statusCombo.getValue() == null) {
                 message.setStyle("-fx-font-size: 12; -fx-text-fill: #e53935;");
-                message.setText("Please select both experiment and status.");
+                message.setText("Please select both izvodjenje and status.");
                 return;
             }
             message.setStyle("-fx-font-size: 12; -fx-text-fill: #1D9E75;");
             message.setText("Status updated successfully.");
-            // TODO: update u bazi
         });
 
         form.getChildren().addAll(expLabel, expCombo, statusLabel, statusCombo, saveBtn, message);
@@ -276,20 +290,35 @@ public class MainView {
         Label subtitle = new Label("Only sessions from experiments you participate in can be deleted");
         subtitle.setStyle("-fx-font-size: 13; -fx-text-fill: #888;");
 
-        TableView<String[]> table = createTable(
-                new String[]{"Date", "Start", "End", "Experiment"},
-                new String[][]{
-                        {"2026-05-10", "09:00", "11:00", "Drug trial phase 1"},
-                        {"2026-05-12", "13:00", "15:30", "Therapy efficacy"}
-                }
-        );
+        TableView<Termin> table = new TableView<>();
+        table.setStyle("-fx-font-size: 13;");
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        TableColumn<Termin, String> colDatum = new TableColumn<>("Date");
+        colDatum.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getDatum().toString()));
+
+        TableColumn<Termin, String> colPocetak = new TableColumn<>("Start");
+        colPocetak.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getVremePocetka().toString()));
+
+        TableColumn<Termin, String> colZavrsetak = new TableColumn<>("End");
+        colZavrsetak.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getVremeZavrsetka().toString()));
+
+        TableColumn<Termin, String> colNaziv = new TableColumn<>("Experiment");
+        colNaziv.setCellValueFactory(data ->
+                new SimpleStringProperty(data.getValue().getNazivIstrazivanja()));
+
+        table.getColumns().addAll(colDatum, colPocetak, colZavrsetak, colNaziv);
+        table.getItems().addAll(Termin.readAllSaNazivom(connection));
 
         VBox.setVgrow(table, Priority.ALWAYS);
         VBox.setMargin(title, new Insets(0, 0, 4, 0));
         VBox.setMargin(subtitle, new Insets(0, 0, 16, 0));
 
         content.getChildren().addAll(title, subtitle, table);
-        // TODO: ucitati sesije iz baze i dodati dugme za brisanje
+        // TODO: dodati dugme za brisanje
     }
 
     // ───────────────────────── helper metode ─────────────────────────
@@ -320,7 +349,7 @@ public class MainView {
         return lbl;
     }
 
-    private void styleComboBox(ComboBox<String> combo) {
+    private void styleComboBox(ComboBox combo) {
         combo.setStyle(
                 "-fx-background-color: #f9f9f9;" +
                         "-fx-border-color: #e0e0e0;" +
