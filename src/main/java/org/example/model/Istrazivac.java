@@ -1,12 +1,16 @@
 package org.example.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
+@Getter
+@Setter
 public class Istrazivac {
 
     public enum Tip {
@@ -50,24 +54,6 @@ public class Istrazivac {
             throw new RuntimeException(e);
         }
     }
-
-    public int getIstrazivac_id() { return istrazivac_id; }
-    public void setIstrazivac_id(int istrazivac_id) { this.istrazivac_id = istrazivac_id; }
-
-    public String getIme() { return ime; }
-    public void setIme(String ime) { this.ime = ime; }
-
-    public String getPrezime() { return prezime; }
-    public void setPrezime(String prezime) { this.prezime = prezime; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getKvalifikacije() { return kvalifikacije; }
-    public void setKvalifikacije(String kvalifikacije) { this.kvalifikacije = kvalifikacije; }
-
-    public Tip getTip() { return tip; }
-    public void setTip(Tip tip) { this.tip = tip; }
 
     public String getPunoIme() { return ime + " " + prezime; }
 

@@ -1,7 +1,11 @@
 package org.example.model;
 
-import java.time.LocalDate;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.time.LocalDate;
+@Getter
+@Setter
 public class Izvodjenje {
 
     public enum Status {
@@ -21,19 +25,4 @@ public class Izvodjenje {
         this.datum = datum;
         this.status = status;
     }
-
-    public int getIzvodjenje_id() { return izvodjenje_id; }
-    public void setIzvodjenje_id(int izvodjenje_id) { this.izvodjenje_id = izvodjenje_id; }
-
-    public int getIstrazivanje_id() { return istrazivanje_id; }
-    public void setIstrazivanje_id(int istrazivanje_id) { this.istrazivanje_id = istrazivanje_id; }
-
-    public int getBolnica_id() { return bolnica_id; }
-    public void setBolnica_id(int bolnica_id) { this.bolnica_id = bolnica_id; }
-
-    public LocalDate getDatum() { return datum; }
-    public void setDatum(LocalDate datum) { this.datum = datum; }
-
-    public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
 }
