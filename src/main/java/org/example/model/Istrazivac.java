@@ -1,5 +1,12 @@
 package org.example.model;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Istrazivac {
 
     public enum Tip {
@@ -20,6 +27,28 @@ public class Istrazivac {
         this.email = email;
         this.kvalifikacije = kvalifikacije;
         this.tip = tip;
+    }
+
+    public static List<Istrazivac> readAll(Connection connection) {
+        String query = "SELECT istrazivac_id, ime, prezime, email, kvalifikacije, tip FROM istrazivac";
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            List<Istrazivac> istrazivaci = new ArrayList<>();
+            while (rs.next()) {
+                int id          = rs.getInt("istrazivac_id");
+                String ime      = rs.getString("ime");
+                String prezime  = rs.getString("prezime");
+                String email    = rs.getString("email");
+                String kval     = rs.getString("kvalifikacije");
+                Istrazivac.Tip tip = Istrazivac.Tip.valueOf(rs.getString("tip"));
+
+                istrazivaci.add(new Istrazivac(id, ime, prezime, email, kval, tip));
+            }
+            return istrazivaci;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int getIstrazivac_id() { return istrazivac_id; }
